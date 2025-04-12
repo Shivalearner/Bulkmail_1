@@ -2,17 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv"); // ✅ 1. import dotenv
+dotenv.config(); // ✅ 2. load .env
 const app = express();
 app.use(cors());
 app.use(express.json());
 mongoose
-  .connect("mongodb+srv://Shiva:123@cluster0.iyh4qyy.mongodb.net/passkey?retryWrites=true&w=majority&appName=Cluster0")
-  .then(function () {
-    console.log("Connected to DB");
-  })
-  .catch(function () {
-    console.log("Failed to connect");
-  });
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("✅ Connected to DB"))
+  .catch((err) => console.error("❌ DB connection error:", err));
 
 const credential = mongoose.model("credential", {}, "bulkmail");
 

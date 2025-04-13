@@ -6,6 +6,7 @@ function App() {
   const [msg, setmsg] = useState("");
   const [status, setstatus] = useState(false);
   const [emailList, setEmailList] = useState([]);
+  const [fileType, setFileType] = useState("");
 
   function handlemsg(evt) {
     setmsg(evt.target.value);
@@ -13,16 +14,21 @@ function App() {
 
   function handlefile(event) {
     const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const emails = XLSX.utils.sheet_to_json(worksheet, { header: "A" });
-      setEmailList(emails);
-    };
-    reader.readAsArrayBuffer(file);
+    if (file) {
+      const extension = file.name.split(".").pop(); // get file extension
+      setFileType(extension); // set file type
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const emails = XLSX.utils.sheet_to_json(worksheet, { header: "A" });
+        setEmailList(emails);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   }
 
   function send() {
@@ -68,7 +74,10 @@ function App() {
               <input type="file" className="hidden" onChange={handlefile} />
             </label>
           </div>
-          <p className="text-gray-600">Total emails: <span className="font-medium">{emailList.length}</span></p>
+          <p className="text-gray-600">
+            Total emails: <span className="font-medium">{emailList.length}</span><br />
+            File type: <span className="font-medium">{fileType || "No file uploaded"}</span>
+          </p>
         </section>
 
         <button
